@@ -8,13 +8,15 @@ namespace DungeonExplorer
 {
     public class Testing
     {
+
+        // Initialize testing objects.
         private Room testRoom = new Room("TestRoom", "Room used for testing.");
         private Room secondTestRoom = new Room("SecondTestRoom", "Another test room.");
         private Spider testEnemy = new Spider();
         private Player testPlayer = new Player("Tester", 100, 0);
         private MapManager testMap = new MapManager();
 
-        private string logPath = "TestResults.txt";
+        private string logPath = "TestResults.txt"; // Saves to this file.
         private List<string> logLines = new List<string>();
 
         public void RunAllTests()
@@ -38,13 +40,13 @@ namespace DungeonExplorer
             File.WriteAllLines(logPath, logLines);
             Console.WriteLine($"Test results saved to {logPath}");
         }
-
+        // Method for testing the rooms.
         private void RoomTest()
         {
             Debug.Assert(!string.IsNullOrEmpty(testRoom.Description), "Room description cannot be empty.");
             logLines.Add("RoomTest passed.");
         }
-
+        // Method for testing enemies.
         private void EnemyTest()
         {
             testEnemy.Health = 50;
@@ -53,7 +55,7 @@ namespace DungeonExplorer
             Debug.Assert(!string.IsNullOrEmpty(testEnemy.Name), "Enemy name cannot be empty.");
             logLines.Add("EnemyTest passed.");
         }
-
+        // Method for testing inventory.
         private void InventoryTest()
         {
             var sword = new Sword("Test Sword", "A testing weapon.", 25);
@@ -62,7 +64,7 @@ namespace DungeonExplorer
             Debug.Assert(testPlayer.InventoryContains("Test Sword"), "Player should have picked up the sword.");
             logLines.Add("InventoryTest passed.");
         }
-
+        // Method for testing combat.
         private void CombatTest()
         {
             int initialEnemyHealth = testEnemy.Health;
@@ -70,7 +72,7 @@ namespace DungeonExplorer
             Debug.Assert(testEnemy.Health < initialEnemyHealth, "Enemy should take damage after attack.");
             logLines.Add("CombatTest passed.");
         }
-
+        // Method for testing experience gain.
         private void XPTest()
         {
             int initialLevel = testPlayer.Level;
@@ -78,7 +80,7 @@ namespace DungeonExplorer
             Debug.Assert(testPlayer.Level > initialLevel, "Player should level up after enough XP.");
             logLines.Add("XPTest passed.");
         }
-
+        // Metho for testing movement between rooms.
         private void MovingRoomsTest()
         {
             testRoom.AddPath("SecondTestRoom");
