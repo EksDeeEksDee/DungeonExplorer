@@ -86,6 +86,8 @@ namespace DungeonExplorer
         {
             return roomMonsters;
         }
+
+        // Removes monsters from the room.
         public void RemoveMonster(Monster monster)
         {
             if (roomMonsters.Contains(monster))
