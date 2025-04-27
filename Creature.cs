@@ -1,64 +1,50 @@
-﻿using System;
+using System;
 
 namespace DungeonExplorer
 {
-    public class Enemy
+    public abstract class Creature : IDamageable // Inherits from IDamageable interface
     {
-        private string name;
-        private int health;
-        private int min_damage;
-        private int max_damage;
-        private int min_heal;
-        private int max_heal;
 
-
-        // Getters and setters for different parameters.
+        // Creating parameters.
         public string Name { get; set; }
-
         public int Health { get; set; }
+        public int MaxHealth { get; set; }
+        public int Damage { get; set; }
+        public double DamageMultiplier { get; set; }
 
-        public int MaxHeal
+        // Constructor for creature class.
+        public Creature(string name, int health)
         {
-            get { return max_heal; }
-            set { max_heal = value; }
+            Name = name;
+            Health = health;
+            MaxHealth = health;
+            Damage = 1; // Default damage.
+            DamageMultiplier = 1.0; // Default damage multiplier.
+        }
+        // Method for taking damage.
+        public virtual void TakeDamage(int amount)
+        {
+            Health -= amount;
+            if (Health <= 0)
+            {
+                Health = 0;
+                Console.Clear();
+                Console.WriteLine($"{Name} has been killed!");
+            }
         }
 
-        public int MinHeal
+        // Method for healing.
+        public virtual void Heal(int amount)
         {
-            get { return min_heal; }
-            set { min_heal = value; }
+            Health += amount;
+            if (Health > MaxHealth)
+            {
+                Health = MaxHealth;
+            }
+            Console.WriteLine($"{Name} healed for {amount} health!");
+            Console.WriteLine($"{Name}'s health is now {Health}!");
         }
 
-        public int MaxDamage
-        {
-            get { return max_damage; }
-            set { max_damage = value; }
-        }
-
-        public int MinDamage
-        {
-            get { return min_damage; }
-            set { min_damage = value; }
-        }
-
-
-        // Attacked method used to deal damage to the player.
-        public int Attack()
-        {
-            Random r = new Random();
-            int damage = r.Next(min_damage, max_damage);
-            Console.WriteLine($"The {Name} attacks for {damage} damage!");
-            return damage;
-        }
-
-        // Method used for healing.
-        public int Heal()
-        {
-            Random r = new Random();
-            int heal = r.Next(min_heal, max_heal);
-            health += heal;
-            Console.WriteLine($"The {Name} heals for {heal} health!");
-            return health;
-        }
+        public abstract int Attack(Creature target);
     }
 }
