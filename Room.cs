@@ -96,7 +96,7 @@ namespace DungeonExplorer
             }
         }
 
-        // Method that returns the description of the room along with what items are inside of it.
+        // Method that returns the description of the room along with the monsters that are present and available paths to other rooms.
         public void GetDescription()
         {
             Console.WriteLine(description);
