@@ -6,6 +6,7 @@ namespace DungeonExplorer
 {
     internal class Game
     {
+        // Imitialize player and map manager.
         private Player player;
         private MapManager map = new MapManager();
 
