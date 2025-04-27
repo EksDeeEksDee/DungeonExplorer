@@ -30,7 +30,7 @@ namespace DungeonExplorer
             new Sword("Goblin Slayer Sword", "A sword made to destroy goblins.", 10);
             new Sword("Stone Cutter Sword", "A sword sharp enough to cut through stone.", 20);
             // Add enemies, items and paths to rooms.
-            room1.AddItem(new Key("Rusty Key", "An old, corroded key.", "rusty_001"));
+            room1.AddItem(new Key("Rusty Key", "An old, corroded key."));
             room1.AddPath("Room2");
             
             room2.AddItem(new Sword("Sword", "A basic sword.", 15));
