@@ -1,179 +1,153 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.InteropServices;
-
 
 namespace DungeonExplorer
 {
-    public class Player
+    public class Player : Creature
     {
-        private string name;
-        private int health;
-        private List<string> inventory = new List<string>(); // List that hold the player's items.
+        private Inventory inventory = new Inventory();
 
-        // Property used to get and set the player's name.
-        public string Name
+        public int Experience;
+        public int Level;
+
+        public Player(string name, int health, int experience) : base(name, health) 
         {
-            get { return name; }
-            set
-            {
-                while (string.IsNullOrEmpty(value)) // Checks to see if the name is empty, if so the user is asked to enter the name again.
-                {
-                    Console.WriteLine("Player name can't be empty.");
-                    Console.Write("Enter the player name: ");
-                    value = Console.ReadLine();
-                }
-                name = value; // Sets the name.
-            }
+            Experience = experience;
+            Level = 1;
         }
-        // Property used to set the player's health.
-        public int Health
+
+        public Statistics Stats { get; private set; } = new Statistics();
+
+        public void PickUpItem(string itemName, Room currentRoom)
         {
-            get { return health; }
-            set
+            var item = currentRoom.GetRoomItems().FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+            if (item == null)
             {
-                if (value <= 0) // Checks if the health is 0 or negative.
+                Console.WriteLine($"Item '{itemName}' not found in the room.");
+                return;
+            }
+            inventory.AddItem(item);
+            Stats.ItemPickedUp();
+            currentRoom.RemoveItem(item);
+        }
+
+        public void UseItem(string itemName)
+        {
+            inventory.UseItem(itemName, this);
+            Stats.PotionUsed();
+        }
+
+        public override int Attack(Creature target)
+        {
+            var weaponItems = inventory.GetAllItems().OfType<Weapon>().ToList();
+            Console.WriteLine("Available weapons: " + string.Join(", ", weaponItems.Select(w => w.Name)));
+            Console.Write("Choose your weapon: ");
+            string weaponName = Console.ReadLine().ToLower();
+            var item = inventory.GetItemByName(weaponName);
+
+            if (item is Weapon weapon)
+            {
+                int baseDamage = (int)(weapon.Damage * DamageMultiplier);
+                int bonusDamage = 0;
+
+                // Special weapon bonuses
+                string targetName = target.Name.ToLower();
+
+                if (weaponName.Contains("goblin slayer") && (targetName.Contains("goblin") || targetName.Contains("goblin chief")))
                 {
-                    Console.WriteLine("Player health cannot be set to zero or be negative.");
-
-                    Console.WriteLine("Player health will be set to 100.");
-                    health = 100; // Sets the health to 100 as a default value.
-
+                    bonusDamage = 10;
+                }
+                else if (weaponName.Contains("magic sword") && targetName.Contains("stone knight"))
+                {
+                    bonusDamage = 10;
                 }
                 else
                 {
-                    health = value; // Sets the health if it isn't 0 or negative.
+                    bonusDamage = 0;
                 }
-            }
-        }
 
-
-        // Method which allows the player to pick up items from a room.
-        public void PickUpItem(string item, Room currentRoom)
-        {
-
-            // Gets the list of items that are in the room.
-            List<string> roomItems = currentRoom.GetRoomItems();
-            // Finds the specified item within the room (case sensitive).
-            string itemToPickUp = roomItems.Find(r => r.Equals(item, StringComparison.OrdinalIgnoreCase));
-
-            if (itemToPickUp != null) // Checks if the item is actually in the room.
-            {
-                if (!inventory.Contains(itemToPickUp)) // Checks if player already has the item.
-                {
-                    inventory.Add(itemToPickUp); // Adds the item to the player's inventory.
-                    currentRoom.RemoveItem(itemToPickUp); // Removes the item from the room.
-                    Console.WriteLine("Picked up: " + itemToPickUp); // Displays pick up message.
-                }
-                else
-                {
-                    Console.WriteLine(itemToPickUp + " already in inventory!"); // If player already has this item.
-                }
+                    int totalDamage = baseDamage + bonusDamage;
+                Console.WriteLine($"{Name} attacks {target.Name} with {weapon.Name} for {totalDamage} damage!");
+                target.TakeDamage(totalDamage);
+                DamageMultiplier = 1.0;
+                return totalDamage;
             }
             else
             {
-                Console.WriteLine($"{item} not found."); // If the item isn't in the room.
+                Console.WriteLine("That item is not a usable weapon.");
+                return 0;
             }
         }
 
-        // Method for player attacking.
-        public void Attack(Enemy target, string weapon)
+        public override void TakeDamage(int amount)
         {
-            int damage = 0;
-            if (inventory.Any(item => item.Equals(weapon, StringComparison.OrdinalIgnoreCase)))
-            {
-                if (weapon.ToLower() == "sword") // If player has a sword they do 10 damage, if they don't then they do 5.
-                {
-                    Console.WriteLine("You used a sword!");
-                    damage = 10;
-                }
-                else if (weapon.ToLower() == "healing potion")
-                {
-                    Console.WriteLine("You used a .... healing potion?");
-                    RemoveItem("Healing Potion");
-                    damage = -10;
-                }
-            }
-            else
-            {
-                Console.WriteLine("You used your fist!");
-                damage = 5;
-            }
-
-            target.Health -= damage;
-
-            if (target.Health <= 0)
-            {
-                target.Health = 0;
-                Console.WriteLine($"{target.Name} defeated!"); // If enemy health is 0 then the defeated message is displayed.
-            }
-            else
-            {
-                if (damage > 0)
-                {
-                    Console.WriteLine($"You attacked {target.Name} for {damage} damage!"); // Attack enemy message.
-                }
-                else
-                {
-                    Console.WriteLine($"You healed {target.Name} for {-damage} health!"); // Heal enemy message.
-                }
-                Console.WriteLine($"{target.Name} remaining health: {target.Health}");
-            }
-
+            Health -= amount;
         }
 
-
-        // Method for using items.
-        public void UseItem(string item)
+        public List<Item> GetInventoryItems()
         {
-            if (item.ToLower() == "healing potion" && inventory.Contains(item))
-            {
-                health += 10;
-                Console.WriteLine($"Used {item} and healed for 10 health!");
-                RemoveItem("Healing Potion");
-            }
-            else if (!inventory.Contains(item))
-            {
-                Console.WriteLine("You don't have that item.");
-            }
-            else
-            {
-                Console.WriteLine("Can't use this item.");
-            }
+            return inventory.GetAllItems();
         }
 
-        // Method used to remove items.
-        public void RemoveItem(string item)
+        // Returns all item names (for saving)
+        public List<string> GetInventoryNames()
         {
-            foreach (var i in inventory)
-            {
-                if (item == i && inventory.Count > 0)
-                {
-                    inventory.Remove(i);
-                }
-                else if (inventory.Count == 0)
-                {
-                    Console.WriteLine("No items in inventory.");
-                }
-                else
-                {
-                    Console.WriteLine("You do not have that item.");
-                }
-            }
+            return inventory.GetAllItems().Select(item => item.Name).ToList();
         }
 
-        // Method which returns the contents of the player's inventory.
+        // Add an item by name (for loading)
+        public void AddItemByName(string itemName)
+        {
+            // Add known items based on names
+            if (itemName.Equals("Rusty Key", StringComparison.OrdinalIgnoreCase))
+                inventory.AddItem(new Key("Rusty Key", "An old, corroded key.", "rusty_001"));
+            else if (itemName.Equals("Sword", StringComparison.OrdinalIgnoreCase))
+                inventory.AddItem(new Sword("Sword", "A basic sword.", 10));
+            else if (itemName.Equals("Healing Potion", StringComparison.OrdinalIgnoreCase))
+                inventory.AddItem(new HealingPotion());
+            else if (itemName.Equals("Strength Potion", StringComparison.OrdinalIgnoreCase))
+                inventory.AddItem(new StrengthPotion());
+        }
+
+        // Method used to check if the player has a certain item.
+        public bool InventoryContains(string itemName)
+        {
+            return inventory.Contains(itemName);
+        }
+        // Method that returns the items in the players' inventory as strings.
         public string InventoryContents()
         {
-            if (inventory.Count == 0)
+            return inventory.InventoryContents();
+        }
+        public void SortInventoryByName()
+        {
+            inventory.SortByName();
+        }
+
+        public void SortInventoryByType()
+        {
+            inventory.SortByType();
+        }
+
+        public void SortInventoryByDamage()
+        {
+            inventory.SortByWeaponDamage();
+        }
+        // Method used to calculate experience gain and level ups.
+        public void GainExperience(int amount)
+        {
+            Experience += amount;
+            Console.WriteLine($"{Name} gained {amount} XP!");
+
+            int xpThreshold = Level * 100;
+            if (Experience >= xpThreshold)
             {
-                return ("Inventory is empty.");
-            }
-            else
-            {
-                return string.Join(", ", inventory);
+                Experience -= xpThreshold;
+                Level++;
+                Health += 20;
+                DamageMultiplier += 0.1;
+                Console.WriteLine($"{Name} leveled up to Level {Level}! Health and damage multiplier increased!.");
             }
         }
     }
