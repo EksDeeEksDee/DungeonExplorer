@@ -5,12 +5,14 @@ namespace DungeonExplorer
 {
     public class Statistics
     {
+
+        // Gettets and setters for different attributes.
         public int EnemiesDefeated { get; private set; }
         public int TotalDamageTaken { get; private set; }
         public int PotionsUsed { get; private set; }
         public int ItemsPickedUp { get; private set; }
         public int RoomsVisited { get; private set; }
-
+        
         public void EnemyDefeated()
         {
             EnemiesDefeated++;
@@ -30,7 +32,7 @@ namespace DungeonExplorer
         {
             RoomsVisited++;
         }
-
+        // Method used to display stats.
         public void DisplayStats()
         {
             Console.WriteLine("===== Player Stats =====");
@@ -41,7 +43,7 @@ namespace DungeonExplorer
             Console.WriteLine($"Rooms Visited: {RoomsVisited}");
             Console.WriteLine("=============================");
         }
-
+        // Method used to save stats to a file this is for saving the game.
         public void SaveToFile(string path = "PlayerStats.txt")
         {
             File.WriteAllLines(path, new[]
@@ -55,7 +57,7 @@ namespace DungeonExplorer
                 "============================="
             });
         }
-
+        // Method used to load the stats.
         public void LoadStats(int enemiesDefeated, int totaldamageTaken, int potionsUsed, int itemsPickedUp, int roomsVisited)
         {
             EnemiesDefeated = enemiesDefeated;
