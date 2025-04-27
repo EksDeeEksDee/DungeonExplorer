@@ -1,48 +1,100 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
 using System.Diagnostics;
 
 namespace DungeonExplorer
 {
-    class Testing
+    public class Testing
     {
-        // Creates a test player, test room and test entity.
-        private Player testPlayer = new Player();
-        private Room testRoom = new Room();
-        private Enemy testEnemy = new Enemy();
+        private Room testRoom = new Room("TestRoom", "Room used for testing.");
+        private Room secondTestRoom = new Room("SecondTestRoom", "Another test room.");
+        private Spider testEnemy = new Spider();
+        private Player testPlayer = new Player("Tester", 100, 0);
+        private MapManager testMap = new MapManager();
 
-        // Method tests testPlayer values.
-        public void PlayerTest()
+        private string logPath = "TestResults.txt";
+        private List<string> logLines = new List<string>();
+
+        public void RunAllTests()
         {
-            testPlayer.Health = 100;
-            Console.Write("Enter name for player test: ");
-            testPlayer.Name = Console.ReadLine();
+            logLines.Add("=====Running Unit Tests=====");
+            try
+            {
+                RoomTest();
+                EnemyTest();
+                InventoryTest();
+                CombatTest();
+                XPTest();
+                MovingRoomsTest();
+            }
+            catch (Exception ex)
+            {
+                logLines.Add("Exception during tests: " + ex.Message);
+            }
 
-            Debug.Assert(testPlayer.Health > 0, "Health cannot be 0.");
-            Debug.Assert(!string.IsNullOrEmpty(testPlayer.Name), "Player name cannot be empty.");
+            logLines.Add("=====Tests Complete=====");
+            File.WriteAllLines(logPath, logLines);
+            Console.WriteLine($"Test results saved to {logPath}");
         }
 
-        // Method tests testRoom values.
-        public void RoomTest()
+        private void RoomTest()
         {
-            testRoom.Description = File.ReadAllText(@"Descriptions/testroom.txt");
             Debug.Assert(!string.IsNullOrEmpty(testRoom.Description), "Room description cannot be empty.");
+            logLines.Add("RoomTest passed.");
         }
 
-        // Method tests testEnemy values.
-        public void EnemyTest()
+        private void EnemyTest()
         {
             testEnemy.Health = 50;
             testEnemy.Name = "Enemy";
-            testEnemy.MaxDamage = 10;
-            testEnemy.MinDamage = 5;
-
-            Debug.Assert(testEnemy.Health > 0, "Enemy health cannot be 0.");
+            Debug.Assert(testEnemy.Health > 0, "Enemy health should be positive.");
             Debug.Assert(!string.IsNullOrEmpty(testEnemy.Name), "Enemy name cannot be empty.");
+            logLines.Add("EnemyTest passed.");
+        }
+
+        private void InventoryTest()
+        {
+            var sword = new Sword("Test Sword", "A testing weapon.", 25);
+            testRoom.AddItem(sword);
+            testPlayer.PickUpItem("Test Sword", testRoom);
+            Debug.Assert(testPlayer.InventoryContains("Test Sword"), "Player should have picked up the sword.");
+            logLines.Add("InventoryTest passed.");
+        }
+
+        private void CombatTest()
+        {
+            int initialEnemyHealth = testEnemy.Health;
+            testPlayer.Attack(testEnemy);
+            Debug.Assert(testEnemy.Health < initialEnemyHealth, "Enemy should take damage after attack.");
+            logLines.Add("CombatTest passed.");
+        }
+
+        private void XPTest()
+        {
+            int initialLevel = testPlayer.Level;
+            testPlayer.GainExperience(150);
+            Debug.Assert(testPlayer.Level > initialLevel, "Player should level up after enough XP.");
+            logLines.Add("XPTest passed.");
+        }
+
+        private void MovingRoomsTest()
+        {
+            testRoom.AddPath("SecondTestRoom");
+            testMap.AddRoom(testRoom);
+            testMap.AddRoom(secondTestRoom);
+            testMap.SetStartingRoom("TestRoom");
+
+            bool movedSuccessfully = testMap.MoveToRoom("SecondTestRoom");
+            Debug.Assert(movedSuccessfully, "Should be able to move to SecondTestRoom.");
+            Debug.Assert(testMap.CurrentRoom.Name == "SecondTestRoom", "Current room should now be SecondTestRoom.");
+
+            // Try moving back to TestRoom (but no path added back)
+            bool moveBack = testMap.MoveToRoom("TestRoom");
+            Debug.Assert(!moveBack, "Should NOT be able to move back to TestRoom (no reverse path).");
+
+            logLines.Add("MovingRoomsTest passed (forward and blocked movement checked).");
         }
     }
 }
