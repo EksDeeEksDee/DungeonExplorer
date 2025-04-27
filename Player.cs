@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -110,16 +110,17 @@ namespace DungeonExplorer
                 inventory.AddItem(new StrengthPotion());
         }
 
-        // Method used to check if the player has a certain item.
+
         public bool InventoryContains(string itemName)
         {
             return inventory.Contains(itemName);
         }
-        // Method that returns the items in the players' inventory as strings.
+
         public string InventoryContents()
         {
             return inventory.InventoryContents();
         }
+
         public void SortInventoryByName()
         {
             inventory.SortByName();
@@ -134,7 +135,7 @@ namespace DungeonExplorer
         {
             inventory.SortByWeaponDamage();
         }
-        // Method used to calculate experience gain and level ups.
+
         public void GainExperience(int amount)
         {
             Experience += amount;

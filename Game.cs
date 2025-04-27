@@ -11,6 +11,7 @@ namespace DungeonExplorer
 
         public Game()
         {
+
             Room room1 = new Room("Room1", File.ReadAllText(@"Descriptions/room1.txt"));
             Room room2 = new Room("Room2", File.ReadAllText(@"Descriptions/room2.txt"));
             Room room3 = new Room("Room3", File.ReadAllText(@"Descriptions/room3.txt"));
@@ -19,6 +20,27 @@ namespace DungeonExplorer
             Room room6 = new Room("Room6", File.ReadAllText(@"Descriptions/room6.txt"));
             Room room7 = new Room("Room7", File.ReadAllText(@"Descriptions/room7.txt"));
 
+
+
+            Console.WriteLine("You wake up after a long sleep, you can't remember anything except your name which is...");
+            Console.Write("Enter your name: ");
+            string new_name = Console.ReadLine(); // Get player name from input.
+            player.Name = new_name; // Set player name.
+            player.Health = 100; // Set player health.
+            spider.Name = "Spider";
+            spider.Health = 30;
+            spider.MaxDamage = 10;
+            spider.MinDamage = 5;
+            // Set room names
+            room1.Name = "Room1";
+            room2.Name = "Room2";
+            room3.Name = "Room3";
+            // Read room descriptions from a text file and set it.
+            room1.Description = File.ReadAllText(@"Descriptions/room1.txt");
+            room2.Description = File.ReadAllText(@"Descriptions/room2.txt");
+            room3.Description = File.ReadAllText(@"Descriptions/room3.txt");
+          
+            // Adding items, enemies and paths to the rooms.
             room1.AddItem(new Key("Rusty Key", "An old, corroded key.", "rusty_001"));
             room1.AddPath("Room2");
 
