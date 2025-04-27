@@ -11,6 +11,8 @@ namespace DungeonExplorer
         protected int healsRemaining;
         protected double healChance;
 
+
+        // Constructor for Monster, inherits from creature but also adds extra attributes.
         public Monster(string name, int health, int minDamage, int maxDamage, int xPReward)
             : base(name, health)
         {
@@ -139,19 +141,19 @@ namespace DungeonExplorer
         public override int Attack(Creature target)
         {
             TryHeal();
-
-            if (!enraged && Health < MaxHealth / 2)
+            // Checks to see if the dragon isn't enraged already.
+            if (!enraged && Health < MaxHealth / 2) // The dragon is enraged when it's health is lower than 50%.
             {
                 enraged = true;
-                MinDamage += 8;
+                MinDamage += 8; // Being enraged increases the dragon's overall damage.
                 MaxDamage += 12;
                 Console.WriteLine($"{Name} enters a furious rage!");
             }
-
+            
             int fireBreath = random.Next(MinDamage, MaxDamage + 1);
             Console.WriteLine($"{Name} breathes fire for {fireBreath} damage!");
             target.TakeDamage(fireBreath);
-
+            // Dragon has a chance to strike twice.
             if (random.NextDouble() < 0.5)
             {
                 int clawDamage = random.Next(10, 16);
