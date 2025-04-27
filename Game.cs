@@ -12,7 +12,7 @@ namespace DungeonExplorer
 
         public Game()
         {
-
+            // Initialize rooms and loading their descriptions from files.
             Room room1 = new Room("Room1", File.ReadAllText(@"Descriptions/room1.txt"));
             Room room2 = new Room("Room2", File.ReadAllText(@"Descriptions/room2.txt"));
             Room room3 = new Room("Room3", File.ReadAllText(@"Descriptions/room3.txt"));
@@ -20,31 +20,7 @@ namespace DungeonExplorer
             Room room5 = new Room("Room5", File.ReadAllText(@"Descriptions/room5.txt"));
             Room room6 = new Room("Room6", File.ReadAllText(@"Descriptions/room6.txt"));
             Room room7 = new Room("Room7", File.ReadAllText(@"Descriptions/room7.txt"));
-
-
-
-            Console.WriteLine("You wake up after a long sleep, you can't remember anything except your name which is...");
-            Console.Write("Enter your name: ");
-            string new_name = Console.ReadLine(); // Get player name from input.
-            player.Name = new_name; // Set player name.
-            player.Health = 100; // Set player health.
-            spider.Name = "Spider";
-            spider.Health = 30;
-            spider.MaxDamage = 10;
-            spider.MinDamage = 5;
-            // Set room names
-            room1.Name = "Room1";
-            room2.Name = "Room2";
-            room3.Name = "Room3";
-            // Read room descriptions from a text file and set it.
-            room1.Description = File.ReadAllText(@"Descriptions/room1.txt");
-            room2.Description = File.ReadAllText(@"Descriptions/room2.txt");
-            room3.Description = File.ReadAllText(@"Descriptions/room3.txt");
-          
-            // Adding items, enemies and paths to the rooms.
-            room1.AddItem(new Key("Rusty Key", "An old, corroded key.", "rusty_001"));
-            room1.AddPath("Room2");
-
+            // Initialize enemies and items.
             Spider spider = new Spider();
             Goblin goblin = new Goblin();
             GoblinWarrior goblinWarrior = new GoblinWarrior();
@@ -53,7 +29,10 @@ namespace DungeonExplorer
             Dragon dragon = new Dragon();
             new Sword("Goblin Slayer Sword", "A sword made to destroy goblins.", 10);
             new Sword("Stone Cutter Sword", "A sword sharp enough to cut through stone.", 20);
-
+            // Add enemies, items and paths to rooms.
+            room1.AddItem(new Key("Rusty Key", "An old, corroded key.", "rusty_001"));
+            room1.AddPath("Room2");
+            
             room2.AddItem(new Sword("Sword", "A basic sword.", 15));
             room2.AddMonster(spider);
             room2.AddPath("Room1");
@@ -82,7 +61,7 @@ namespace DungeonExplorer
 
             room7.AddMonster(dragon);
 
-
+            // Add the rooms to the map and set the starting room to room 1.
             map.AddRoom(room1);
             map.AddRoom(room2);
             map.AddRoom(room3);
@@ -91,46 +70,49 @@ namespace DungeonExplorer
             map.AddRoom(room6);
             map.AddRoom(room7);
             map.SetStartingRoom("Room1");
+            // Text that shows what the game is about.
             Console.WriteLine("This is a text-based puzzle dungeon crawler game. You will be able to fight enemies and pick up items which are hinted at in room descriptions.");
             Console.WriteLine("Good Luck & Have Fun!");
-
+            // Logic which allows the player to start a new game or load an existing save file which is a text file. The game won't progress unless the player either inputs 'load' or 'new'.
             string choice = "";
             while (choice != "new" && choice != "load")
             {
                 Console.Write("Type 'new' for a new game or 'load' to load a save: ");
                 choice = Console.ReadLine().Trim().ToLower();
-
-                if (choice != "new" && choice != "load")
-                {
-                    Console.WriteLine("Invalid input. Please type 'new' or 'load'.");
-                }
             }
+            // If the player chooses to load then the game will use the Save.LoadGame() method to load the game.
             if (choice == "load")
             {
                 var (loadedPlayer, loadedRoomName) = Save.LoadGame();
                 if (loadedPlayer != null)
                 {
+                    // Clears the console and starts the game from the room that was saved.
                     Console.Clear();
                     player = loadedPlayer;
                     map.SetStartingRoom(loadedRoomName);
                     return;
                 }
             }
+            // If the player chooses to load when there's no save file, a new game will start instead.
             else
             {
                 Console.WriteLine("Failed to load. Starting a new game instead.");
             }
-                Console.WriteLine("You wake up after a long sleep, you can't remember anything except your name which is...");
+
+            // Text that sets the atmosphere/story.
+            
+            Console.WriteLine("You wake up after a long sleep, you can't remember anything except your name which is...");
             Console.Write("Enter your name: ");
             string new_name = Console.ReadLine();
-
+            // This is used for testing, if the player sets their name to any variation of "RunTests" then tests will be ran instead and the game won't start. The test results are save to a file called 'TestResults.txt'.
             if (new_name.Equals("RunTests", StringComparison.OrdinalIgnoreCase))
             {
-                Testing tests = new Testing();
-                tests.RunAllTests();
+                Testing tests = new Testing(); // Initializes new instance of test class.
+                tests.RunAllTests(); // Runs the tests from the test class.
                 Console.WriteLine("Tests completed. Check TestResults.txt.");
                 Environment.Exit(0); // Exit without starting the game
             }
+            // More story text and initializing a new player.
             Console.WriteLine($"That's it! {new_name} was your name!");
             Console.WriteLine("You stand up not sure of where you are or what's to come.");
             player = new Player(new_name, 100, 0);
@@ -139,8 +121,8 @@ namespace DungeonExplorer
 
         public void Start()
         {
-            bool description_checked = false;
-            bool playing = true;
+            bool description_checked = false; // Variable to check if the player has looked at the rooms' description.
+            bool playing = true; // Variable use to run the game.
 
             while (playing)
             {
@@ -169,6 +151,7 @@ namespace DungeonExplorer
                 else if (user_input.StartsWith("go to") && description_checked)
                 {
                     HandleGoTo(user_input);
+                    description_checked = false;
                 }
                 else if (user_input.StartsWith("use"))
                 {
@@ -190,7 +173,7 @@ namespace DungeonExplorer
                 else Console.WriteLine("Invalid command!");
             }
         }
-
+        // Method used to display all commands and what they do.
         private void ShowHelp()
         {
             Console.WriteLine("Commands:");
@@ -204,7 +187,7 @@ namespace DungeonExplorer
             Console.WriteLine("Quit - exits the game.");
             Console.WriteLine("=========================================================================================");
         }
-
+        // Method used to display the players' stats like name, health, inventory etc also allows for the player to sort their inventory.
         private void ShowStatus()
         {
             Console.WriteLine($"Name: {player.Name}");
@@ -230,21 +213,29 @@ namespace DungeonExplorer
                 Console.Write("Sort inventory? (name/type/damage/none): ");
                 string sortOption = Console.ReadLine().Trim().ToLower();
 
-                switch (sortOption)
+            if (player.GetInventoryItems().Count >= 2)
+            {
+                Console.Write("Sort inventory? (name/type/damage/none): ");
+                string sortOption = Console.ReadLine().Trim().ToLower();
+
+                if (sortOption == "name")
                 {
-                    case "name":
-                        player.SortInventoryByName();
-                        break;
-                    case "type":
-                        player.SortInventoryByType();
-                        break;
-                    case "damage":
-                        player.SortInventoryByDamage();
-                        break;
-                    default:
-                        Console.WriteLine("No sorting applied.");
-                        break;
+                    player.SortInventoryByName();
                 }
+                else if (sortOption == "type")
+                {
+                    player.SortInventoryByType();
+                }
+                else if (sortOption == "damage")
+                {
+                    player.SortInventoryByDamage();
+                }
+                Console.WriteLine("Sorted Inventory:");
+                foreach (var item in player.GetInventoryItems())
+                {
+                    Console.WriteLine($"- {item.Name}: {item.Description}");
+                }
+            }
                 Console.WriteLine("Sorted Inventory:");
                 foreach (var item in player.GetInventoryItems())
                 {
@@ -259,19 +250,19 @@ namespace DungeonExplorer
             Console.WriteLine("================================================");
         }
 
-
+        // Method that handles displaying the room description.
         private void ShowRoomDescription()
         {
             map.CurrentRoom.GetDescription();
             Console.WriteLine("====================================================");
         }
-
+        // Method that handles player picking up items.
         private void HandlePickUp(string user_input)
         {
             string itemName = user_input.Substring(8).Trim();
             if (!string.IsNullOrEmpty(itemName))
             {
-                // Room 5 has a hidden enemy that only appears if you try to pick up an item, in other rooms you can pick up items without attacking enemies, but you get a lower score and no experience.
+                // Room 5 has a hidden enemy that only appears if you try to pick up an item, in other rooms you can pick up items without attacking enemies but you get no experience and special items so the game might be more difficult..
                 if (map.CurrentRoom.Name == "Room5")
                 {
                     var stoneKnight = map.CurrentRoom.GetMonsters().FirstOrDefault(m => m.Name == "Stone Knight");
@@ -294,10 +285,11 @@ namespace DungeonExplorer
             }
             else
             {
+                // Handles errors.
                 Console.WriteLine("No item provided. Please specify which item you want to pick up.");
             }
         }
-
+        // Method that handles the player moving between rooms.
         private void HandleGoTo(string user_input)
         {
             string roomName = user_input.Substring(6).Trim();
@@ -306,11 +298,11 @@ namespace DungeonExplorer
             {
                 Console.WriteLine("The door is sealed by a riddle. Solve it to pass.");
 
-                Console.WriteLine("\"I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?\"");
+                Console.WriteLine("\"I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?\""); // The answer is echo.
                 Console.Write("Your answer: ");
                 string answer = Console.ReadLine().Trim().ToLower();
 
-                if (answer == "echo")
+                if (answer == "echo") // If the player got the answer right.
                 {
                     Console.WriteLine("The door rumbles and opens. You may proceed!");
                     map.MoveToRoom(roomName);
@@ -319,8 +311,15 @@ namespace DungeonExplorer
                 }
                 else
                 {
-                    Console.WriteLine("The runes glow red. The door remains shut. You feel a sharp pain in your mind (-10 HP).");
+                    // If the player guesses incorrectly, they are punished and lose 10 health.
+                    Console.WriteLine("The runes glow red. The door remains shut. You feel a sharp pain in your mind (-10 health).");
                     player.TakeDamage(10);
+                    if (player.Health <= 0)
+                    {
+                        Console.WriteLine("You collapse and your vision slowly fades... GAME OVER!");
+                        player.stats.DisplayStats();
+                        Environment.Exit(0);
+                    }
                 }
                 return;
             }
@@ -336,16 +335,18 @@ namespace DungeonExplorer
                 Console.WriteLine("No direct path or room doesn't exist.");
             }
         }
-
+        // Method that handles the player using items outside of combat.
         private void HandleUse(string user_input)
         {
             string itemName = user_input.Substring(3).Trim();
             player.UseItem(itemName);
             Console.WriteLine("==========================================");
         }
-
+        // Method used to hanle combat.
         private void HandleCombatTurn()
         {
+
+            // If no enemies in the room, an appropriate message is displayed.
             if (map.CurrentRoom.GetMonsters().Count == 0)
             {
                 Console.WriteLine("There are no enemies in the room.");
@@ -360,14 +361,14 @@ namespace DungeonExplorer
                 {
                     Console.WriteLine($"- {m.Name} (HP: {m.Health})");
                 }
-
-                string usePotion;
-                do
+                // loops until the player inputs 'y' or 'n'.
+                
+                while (usePotion != "y" && usePotion != "n")
                 {
                     Console.Write("Do you want to use a potion first? (Y/N): ");
                     usePotion = Console.ReadLine().Trim().ToLower();
-                } while (usePotion != "y" && usePotion != "n");
-
+                } 
+                // If the player inputs 'y' then they can use a potion but only if they have any.
                 if (usePotion == "y")
                 {
                     var potions = player.InventoryContents().OfType<Potion>().ToList();
@@ -377,7 +378,7 @@ namespace DungeonExplorer
                     }
                     else
                     {
-                        Console.WriteLine("Available potions: " + string.Join(", ", potions.Select(p => p.Name)));
+                        Console.WriteLine("Available potions: " + string.Join(", ", potions.Select(p => p.Name))); // Displays available potions.
                         Console.Write("Enter the potion name: ");
                         string potionName = Console.ReadLine();
                         player.UseItem(potionName);
@@ -388,14 +389,16 @@ namespace DungeonExplorer
                 Console.Write("Which enemy do you want to attack?: ");
                 string targetName = Console.ReadLine();
                 var target = map.CurrentRoom.GetMonsters().FirstOrDefault(m => m.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase));
-
+                // Displays apporpriate error message.
                 if (target == null)
                 {
-                    Console.WriteLine("No such enemy in the room.");
+                    Console.WriteLine("No such enemy in the room."); 
                 }
                 else
                 {
+                    // Calls the player attack method.
                     player.Attack(target);
+                    // Checks if the enemy is dead, some enemies being killed rewards the player with items. No matter what enemy is killed the player gets experience, each enemy gives different amount of experience.
                     if (target.Health <= 0)
                     {
                         if (target is Dragon)
@@ -425,7 +428,7 @@ namespace DungeonExplorer
                             }
                         }
                         player.GainExperience(target.XPReward);
-                        map.CurrentRoom.RemoveMonster(target);
+                        map.CurrentRoom.RemoveMonster(target); //Removes the enemy from the room when they are killed.
                     }
 
                     // Remaining monsters attack the player
@@ -437,10 +440,12 @@ namespace DungeonExplorer
 
                     Console.WriteLine($"Player HP: {player.Health}");
                 }
-
+                // Checks if the player is dead, if they are a game over message is shown and their stats are displayed.
                 if (player.Health <= 0)
                 {
+                    Console.Clear();
                     Console.WriteLine("You have fallen in battle. Game Over.");
+                    player.stats.DisplayStats();
                     Environment.Exit(0);
                 }
             }
