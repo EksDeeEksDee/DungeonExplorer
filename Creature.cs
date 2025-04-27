@@ -44,7 +44,7 @@ namespace DungeonExplorer
             Console.WriteLine($"{Name} healed for {amount} health!");
             Console.WriteLine($"{Name}'s health is now {Health}!");
         }
-
+        // Method for attacking - left blank as every creatue attacks differently.
         public abstract int Attack(Creature target);
     }
 }
