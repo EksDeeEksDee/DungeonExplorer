@@ -16,9 +16,10 @@ namespace DungeonExplorer
             Experience = experience;
             Level = 1;
         }
-
+        // Makes a new instance of statistics to keep track of the player's statistics.
         public Statistics Stats { get; private set; } = new Statistics();
 
+        // Method used for picking up items.
         public void PickUpItem(string itemName, Room currentRoom)
         {
             var item = currentRoom.GetRoomItems().FirstOrDefault(i => i.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
@@ -31,13 +32,13 @@ namespace DungeonExplorer
             Stats.ItemPickedUp();
             currentRoom.RemoveItem(item);
         }
-
+        // Method for handling the use of items.
         public void UseItem(string itemName)
         {
             inventory.UseItem(itemName, this);
             Stats.PotionUsed();
         }
-
+        // Metho for attacking allowing the player to choose their weapon, and depending on weapon choice an enemy attacked, the weapon might have a special effect.
         public override int Attack(Creature target)
         {
             var weaponItems = inventory.GetAllItems().OfType<Weapon>().ToList();
@@ -62,12 +63,8 @@ namespace DungeonExplorer
                 {
                     bonusDamage = 10;
                 }
-                else
-                {
-                    bonusDamage = 0;
-                }
 
-                    int totalDamage = baseDamage + bonusDamage;
+                int totalDamage = baseDamage + bonusDamage;
                 Console.WriteLine($"{Name} attacks {target.Name} with {weapon.Name} for {totalDamage} damage!");
                 target.TakeDamage(totalDamage);
                 DamageMultiplier = 1.0;
@@ -79,12 +76,12 @@ namespace DungeonExplorer
                 return 0;
             }
         }
-
+        // Method for taking damage.
         public override void TakeDamage(int amount)
         {
             Health -= amount;
         }
-
+        // Returns all the players' items as items.
         public List<Item> GetInventoryItems()
         {
             return inventory.GetAllItems();
@@ -110,17 +107,16 @@ namespace DungeonExplorer
                 inventory.AddItem(new StrengthPotion());
         }
 
-
+        // Method used to check if the player has a certain item.
         public bool InventoryContains(string itemName)
         {
             return inventory.Contains(itemName);
         }
-
+        // Method that returns the items in the players' inventory as strings.
         public string InventoryContents()
         {
             return inventory.InventoryContents();
         }
-
         public void SortInventoryByName()
         {
             inventory.SortByName();
@@ -135,7 +131,7 @@ namespace DungeonExplorer
         {
             inventory.SortByWeaponDamage();
         }
-
+        // Method used to calculate experience gain and level ups.
         public void GainExperience(int amount)
         {
             Experience += amount;
