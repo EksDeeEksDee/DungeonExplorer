@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 
 namespace DungeonExplorer
 {
@@ -28,11 +26,15 @@ namespace DungeonExplorer
             }
         }
 
-
-        private List<string> roomItems = new List<string>(); // List of items within the room.
+        private List<Item> roomItems = new List<Item>(); // List of items within the room.
         private List<string> roomPaths = new List<string>(); // List of paths to other rooms.
-        private List<Enemy> roomEnemies = new List<Enemy>(); // List of enemies in the room.
+        private List<Monster> roomMonsters = new List<Monster>(); // List of monsters in the room.
 
+        public Room(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
 
         // Method used to add paths to the room.
         public void AddPath(string path)
@@ -44,7 +46,7 @@ namespace DungeonExplorer
         }
 
         // Method used to add items to the room.
-        public void AddItem(string item)
+        public void AddItem(Item item)
         {
             if (!roomItems.Contains(item))
             {
@@ -53,16 +55,16 @@ namespace DungeonExplorer
         }
 
         // Method used to remove items from the room.
-        public void RemoveItem(string item)
+        public void RemoveItem(Item item)
         {
             if (roomItems.Contains(item))
             {
                 roomItems.Remove(item);
             }
         }
-      
+
         // Method that returns the items that are in the room.
-        public List<string> GetRoomItems()
+        public List<Item> GetRoomItems()
         {
             return roomItems; // Return list of items in the room.
         }
@@ -73,30 +75,34 @@ namespace DungeonExplorer
             return roomPaths;
         }
 
-        public void AddEnemy(Enemy enemy)
+        // Add a monster to the room.
+        public void AddMonster(Monster monster)
         {
-            roomEnemies.Add(enemy);
+            roomMonsters.Add(monster);
         }
 
-        public List<Enemy> GetEnemies()
+        // Get the monsters in the room.
+        public List<Monster> GetMonsters()
         {
-            return roomEnemies;
+            return roomMonsters;
+        }
+        public void RemoveMonster(Monster monster)
+        {
+            if (roomMonsters.Contains(monster))
+            {
+                roomMonsters.Remove(monster);
+            }
         }
 
         // Method that returns the description of the room along with what items are inside of it.
-        public void GetDescription(Room currentRoom)
+        public void GetDescription()
         {
-            List<string> paths = roomPaths.Where(path => path != currentRoom.Name).ToList();
             Console.WriteLine(description);
-            if (roomItems.Count == 0)
+            if (roomMonsters.Count > 0)
             {
-                Console.WriteLine("No items in the room.");
+                Console.WriteLine("Monsters present: " + string.Join(", ", roomMonsters.Select(m => m.Name)));
             }
-            else
-            {
-                Console.WriteLine("There are the following items in the room: " + string.Join(", ", roomItems));
-            }
-            Console.WriteLine("Following paths in the room: " + string.Join(", ", paths));
+            Console.WriteLine("Following paths in the room: " + string.Join(", ", roomPaths));
         }
     }
 }
