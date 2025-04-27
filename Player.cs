@@ -98,7 +98,7 @@ namespace DungeonExplorer
         {
             // Add known items based on names
             if (itemName.Equals("Rusty Key", StringComparison.OrdinalIgnoreCase))
-                inventory.AddItem(new Key("Rusty Key", "An old, corroded key.", "rusty_001"));
+                inventory.AddItem(new Key("Rusty Key", "An old, corroded key."));
             else if (itemName.Equals("Sword", StringComparison.OrdinalIgnoreCase))
                 inventory.AddItem(new Sword("Sword", "A basic sword.", 10));
             else if (itemName.Equals("Healing Potion", StringComparison.OrdinalIgnoreCase))
