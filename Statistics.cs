@@ -1,0 +1,68 @@
+using System;
+using System.IO;
+
+namespace DungeonExplorer
+{
+    public class Statistics
+    {
+        public int EnemiesDefeated { get; private set; }
+        public int TotalDamageTaken { get; private set; }
+        public int PotionsUsed { get; private set; }
+        public int ItemsPickedUp { get; private set; }
+        public int RoomsVisited { get; private set; }
+
+        public void EnemyDefeated()
+        {
+            EnemiesDefeated++;
+        }
+
+        public void PotionUsed()
+        {
+            PotionsUsed++;
+        }
+
+        public void ItemPickedUp()
+        {
+            ItemsPickedUp++;
+        }
+
+        public void RoomVisited()
+        {
+            RoomsVisited++;
+        }
+
+        public void DisplayStats()
+        {
+            Console.WriteLine("===== Player Stats =====");
+            Console.WriteLine($"Enemies Defeated: {EnemiesDefeated}");
+            Console.WriteLine($"Damage Taken: {TotalDamageTaken}");
+            Console.WriteLine($"Potions Used: {PotionsUsed}");
+            Console.WriteLine($"Items Picked Up: {ItemsPickedUp}");
+            Console.WriteLine($"Rooms Visited: {RoomsVisited}");
+            Console.WriteLine("=============================");
+        }
+
+        public void SaveToFile(string path = "PlayerStats.txt")
+        {
+            File.WriteAllLines(path, new[]
+            {
+                "===== Player Statistics =====",
+                $"Enemies Defeated: {EnemiesDefeated}",
+                $"Damage Taken: {TotalDamageTaken}",
+                $"Potions Used: {PotionsUsed}",
+                $"Items Picked Up: {ItemsPickedUp}",
+                $"Rooms Visited: {RoomsVisited}",
+                "============================="
+            });
+        }
+
+        public void LoadStats(int enemiesDefeated, int totaldamageTaken, int potionsUsed, int itemsPickedUp, int roomsVisited)
+        {
+            EnemiesDefeated = enemiesDefeated;
+            TotalDamageTaken = totaldamageTaken;
+            PotionsUsed = potionsUsed;
+            ItemsPickedUp = itemsPickedUp;
+            RoomsVisited = roomsVisited;
+        }
+    }
+}
