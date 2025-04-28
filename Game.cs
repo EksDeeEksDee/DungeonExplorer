@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -27,12 +28,10 @@ namespace DungeonExplorer
             GoblinChief goblinChief = new GoblinChief();
             StoneKnight stoneKnight = new StoneKnight();
             Dragon dragon = new Dragon();
-            new Sword("Goblin Slayer Sword", "A sword made to destroy goblins.", 10);
-            new Sword("Stone Cutter Sword", "A sword sharp enough to cut through stone.", 20);
             // Add enemies, items and paths to rooms.
             room1.AddItem(new Key("Rusty Key", "An old, corroded key."));
             room1.AddPath("Room2");
-            
+
             room2.AddItem(new Sword("Sword", "A basic sword.", 15));
             room2.AddMonster(spider);
             room2.AddPath("Room1");
@@ -100,7 +99,7 @@ namespace DungeonExplorer
             }
 
             // Text that sets the atmosphere/story.
-            
+
             Console.WriteLine("You wake up after a long sleep, you can't remember anything except your name which is...");
             Console.Write("Enter your name: ");
             string new_name = Console.ReadLine();
@@ -210,14 +209,8 @@ namespace DungeonExplorer
 
             if (player.GetInventoryItems().Count >= 2)
             {
-                Console.Write("Sort inventory? (name/type/damage/none): ");
-                string sortOption = Console.ReadLine().Trim().ToLower();
-
-            if (player.GetInventoryItems().Count >= 2)
-            {
-                Console.Write("Sort inventory? (name/type/damage/none): ");
-                string sortOption = Console.ReadLine().Trim().ToLower();
-
+            Console.Write("Sort inventory? (name/type/damage/none): ");
+            string sortOption = Console.ReadLine().Trim().ToLower();
                 if (sortOption == "name")
                 {
                     player.SortInventoryByName();
@@ -230,12 +223,6 @@ namespace DungeonExplorer
                 {
                     player.SortInventoryByDamage();
                 }
-                Console.WriteLine("Sorted Inventory:");
-                foreach (var item in player.GetInventoryItems())
-                {
-                    Console.WriteLine($"- {item.Name}: {item.Description}");
-                }
-            }
                 Console.WriteLine("Sorted Inventory:");
                 foreach (var item in player.GetInventoryItems())
                 {
@@ -257,7 +244,7 @@ namespace DungeonExplorer
             Console.WriteLine("====================================================");
         }
 
-        
+
         // Method that handles player picking up items.
         private void HandlePickUp(string user_input)
         {
@@ -291,26 +278,26 @@ namespace DungeonExplorer
                 Console.WriteLine("No item provided. Please specify which item you want to pick up.");
             }
         }
-        
+
         // Load all riddles from the "Riddles" folder
         private List<(string question, string answer)> LoadRiddles()
         {
             List<(string, string)> riddles = new List<(string, string)>();
-        
+
             string riddlesPath = "Riddles"; // Folder that contains the riddles
             if (!Directory.Exists(riddlesPath))
             {
                 Console.WriteLine("No riddles folder found!");
                 return riddles;
             }
-        
+
             foreach (var file in Directory.GetFiles(riddlesPath, "*.txt"))
             {
                 string[] lines = File.ReadAllLines(file);
-        
+
                 string question = "";
                 string answer = "";
-        
+
                 for (int i = 0; i < lines.Length; i++)
                 {
                     if (lines[i].StartsWith("QUESTION:"))
@@ -322,16 +309,16 @@ namespace DungeonExplorer
                         answer = lines[i].Substring(7).Trim().ToLower();
                     }
                 }
-        
+
                 if (!string.IsNullOrEmpty(question) && !string.IsNullOrEmpty(answer))
                 {
                     riddles.Add((question, answer));
                 }
             }
-        
+
             return riddles;
         }
-        
+
         // Method that handles the player moving between rooms.
         private void HandleGoTo(string user_input)
         {
@@ -340,20 +327,20 @@ namespace DungeonExplorer
             if (map.CurrentRoom.Name == "Room6" && roomName.Equals("Room7", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine("The door is sealed by a riddle. Solve it to pass.");
-            
+
                 var riddles = LoadRiddles();
                 if (riddles.Count == 0)
                 {
                     Console.WriteLine("No riddles available. The door remains shut.");
                     return;
                 }
-            
+
                 Random rand = new Random();
                 var chosenRiddle = riddles[rand.Next(riddles.Count)];
                 Console.WriteLine($"Riddle: \"{chosenRiddle.question}\"");
                 Console.Write("Your answer: ");
                 string playerAnswer = Console.ReadLine().Trim().ToLower();
-            
+
                 if (playerAnswer == chosenRiddle.answer)
                 {
                     Console.WriteLine("The door rumbles and opens. You may proceed!");
@@ -369,7 +356,7 @@ namespace DungeonExplorer
                     if (player.Health <= 0)
                     {
                         Console.WriteLine("You collapse and your vision slowly fades... GAME OVER!");
-                        player.stats.DisplayStats();
+                        player.Stats.DisplayStats();
                         Environment.Exit(0);
                     }
                 }
@@ -414,16 +401,17 @@ namespace DungeonExplorer
                     Console.WriteLine($"- {m.Name} (HP: {m.Health})");
                 }
                 // loops until the player inputs 'y' or 'n'.
-                
+                string usePotion = "";
+
                 while (usePotion != "y" && usePotion != "n")
                 {
                     Console.Write("Do you want to use a potion first? (Y/N): ");
                     usePotion = Console.ReadLine().Trim().ToLower();
-                } 
+                }
                 // If the player inputs 'y' then they can use a potion but only if they have any.
                 if (usePotion == "y")
                 {
-                    var potions = player.InventoryContents().OfType<Potion>().ToList();
+                    var potions = player.GetInventoryItems().OfType<Potion>().ToList();
                     if (potions.Count == 0)
                     {
                         Console.WriteLine("You have no potions.");
@@ -444,7 +432,7 @@ namespace DungeonExplorer
                 // Displays apporpriate error message.
                 if (target == null)
                 {
-                    Console.WriteLine("No such enemy in the room."); 
+                    Console.WriteLine("No such enemy in the room.");
                 }
                 else
                 {
@@ -459,15 +447,19 @@ namespace DungeonExplorer
                             player.Stats.SaveToFile(); // Save final stats
                             Environment.Exit(0);
                         }
-                        else if (target is Goblin)
+                        if (target is Goblin)
                         {
                             Console.WriteLine("You found a Goblin Slayer Sword!");
+                            // 1. Add the sword to the room's item list
+                            map.CurrentRoom.AddItem(new Sword("Goblin Slayer Sword", "A sword made to destroy goblins.", 10));
+                            // 2. Now use PickUpItem normally
                             player.PickUpItem("Goblin Slayer Sword", map.CurrentRoom);
                         }
                         else if (target is GoblinChief)
                         {
-                            Console.WriteLine("You found a Magic Sword!");
-                            player.PickUpItem("Magic Sword", map.CurrentRoom);
+                            Console.WriteLine("You found a Stone Cutter Sword!");
+                            new Sword("Stone Cutter Sword", "A sword sharp enough to cut through stone.", 20);
+                            player.PickUpItem("Stone Cutter Sword", map.CurrentRoom);
                         }
                         else if (map.CurrentRoom.Name == "Room5" && target is StoneKnight)
                         {
@@ -497,7 +489,7 @@ namespace DungeonExplorer
                 {
                     Console.Clear();
                     Console.WriteLine("You have fallen in battle. Game Over.");
-                    player.stats.DisplayStats();
+                    player.Stats.DisplayStats();
                     Environment.Exit(0);
                 }
             }
