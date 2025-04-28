@@ -114,7 +114,7 @@ namespace DungeonExplorer
             // More story text and initializing a new player.
             Console.WriteLine($"That's it! {new_name} was your name!");
             Console.WriteLine("You stand up not sure of where you are or what's to come.");
-            player = new Player(new_name, 100, 0);
+            player = new Player(new_name, 1000, 0);
 
         }
 
@@ -450,15 +450,13 @@ namespace DungeonExplorer
                         if (target is Goblin)
                         {
                             Console.WriteLine("You found a Goblin Slayer Sword!");
-                            // 1. Add the sword to the room's item list
                             map.CurrentRoom.AddItem(new Sword("Goblin Slayer Sword", "A sword made to destroy goblins.", 10));
-                            // 2. Now use PickUpItem normally
                             player.PickUpItem("Goblin Slayer Sword", map.CurrentRoom);
                         }
                         else if (target is GoblinChief)
                         {
                             Console.WriteLine("You found a Stone Cutter Sword!");
-                            new Sword("Stone Cutter Sword", "A sword sharp enough to cut through stone.", 20);
+                            map.CurrentRoom.AddItem(new Sword("Stone Cutter Sword", "A sword sharp enough to cut through stone.", 20));
                             player.PickUpItem("Stone Cutter Sword", map.CurrentRoom);
                         }
                         else if (map.CurrentRoom.Name == "Room5" && target is StoneKnight)
@@ -494,5 +492,7 @@ namespace DungeonExplorer
                 }
             }
         }
+    }
+}
     }
 }
