@@ -44,42 +44,54 @@ namespace DungeonExplorer
 
             if (weaponItems.Count == 0)
             {
-                // No weapons — use fists automatically
-                int fistDamage = (int)(5 * DamageMultiplier);
-                Console.WriteLine($"{Name} has no weapons and punches {target.Name} for {fistDamage} damage!");
-                target.TakeDamage(fistDamage);
-                DamageMultiplier = 1.0;
-                return fistDamage;
-            }
-            else
-            {
-                Console.WriteLine("Available weapons: " + string.Join(", ", weaponItems.Select(w => w.Name)));
-
-                Weapon selectedWeapon = null;
-
-                while (selectedWeapon == null)
-                {
-                    Console.Write("Choose your weapon: ");
-                    string weaponName = Console.ReadLine().Trim();
-
-                    var item = inventory.GetItemByName(weaponName);
-
-                    if (item is Weapon weapon)
-                    {
-                        selectedWeapon = weapon;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid weapon choice. Please pick a valid weapon from your inventory.");
-                    }
-                }
-
-                int damage = (int)(selectedWeapon.Damage * DamageMultiplier);
-                Console.WriteLine($"{Name} attacks {target.Name} with {selectedWeapon.Name} for {damage} damage!");
+                // No weapons, use fist
+                int damage = (int)(5 * DamageMultiplier);
+                Console.WriteLine($"{Name} punches {target.Name} with their fist for {damage} damage!");
                 target.TakeDamage(damage);
                 DamageMultiplier = 1.0;
                 return damage;
             }
+
+            // If they have weapons, ask them to choose
+            Console.WriteLine("Available weapons: " + string.Join(", ", weaponItems.Select(w => w.Name)));
+
+            Weapon selectedWeapon = null;
+            while (selectedWeapon == null)
+            {
+                Console.Write("Choose your weapon: ");
+                string weaponName = Console.ReadLine().Trim();
+                var item = inventory.GetItemByName(weaponName);
+
+                if (item is Weapon weapon)
+                {
+                    selectedWeapon = weapon;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid weapon. Please select a valid weapon from your inventory.");
+                }
+            }
+
+            int bonusDamage = 0;
+
+            // Apply bonus damage depending on the weapon and enemy
+            if (selectedWeapon.Name.IndexOf("Goblin Slayer", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                (target.Name.IndexOf("Goblin", StringComparison.OrdinalIgnoreCase) >= 0 || target.Name.IndexOf("Goblin Chief", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                bonusDamage = 10;
+            }
+            else if (selectedWeapon.Name.IndexOf("Stone Cutter", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                     target.Name.IndexOf("Stone Knight", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                bonusDamage = 15;
+            }
+
+            int totalDamage = (int)((selectedWeapon.Damage + bonusDamage) * DamageMultiplier);
+
+            Console.WriteLine($"{Name} attacks {target.Name} with {selectedWeapon.Name} for {totalDamage} damage!");
+            target.TakeDamage(totalDamage);
+            DamageMultiplier = 1.0;
+            return totalDamage;
         }
 
         public override void TakeDamage(int amount)
@@ -155,3 +167,4 @@ namespace DungeonExplorer
         }
     }
 }
+
