@@ -256,6 +256,8 @@ namespace DungeonExplorer
             map.CurrentRoom.GetDescription();
             Console.WriteLine("====================================================");
         }
+
+        
         // Method that handles player picking up items.
         private void HandlePickUp(string user_input)
         {
@@ -289,6 +291,47 @@ namespace DungeonExplorer
                 Console.WriteLine("No item provided. Please specify which item you want to pick up.");
             }
         }
+        
+        // Load all riddles from the "Riddles" folder
+        private List<(string question, string answer)> LoadRiddles()
+        {
+            List<(string, string)> riddles = new List<(string, string)>();
+        
+            string riddlesPath = "Riddles"; // Folder that contains the riddles
+            if (!Directory.Exists(riddlesPath))
+            {
+                Console.WriteLine("No riddles folder found!");
+                return riddles;
+            }
+        
+            foreach (var file in Directory.GetFiles(riddlesPath, "*.txt"))
+            {
+                string[] lines = File.ReadAllLines(file);
+        
+                string question = "";
+                string answer = "";
+        
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].StartsWith("QUESTION:"))
+                    {
+                        question = lines[i].Substring(9).Trim();
+                    }
+                    else if (lines[i].StartsWith("ANSWER:"))
+                    {
+                        answer = lines[i].Substring(7).Trim().ToLower();
+                    }
+                }
+        
+                if (!string.IsNullOrEmpty(question) && !string.IsNullOrEmpty(answer))
+                {
+                    riddles.Add((question, answer));
+                }
+            }
+        
+            return riddles;
+        }
+        
         // Method that handles the player moving between rooms.
         private void HandleGoTo(string user_input)
         {
@@ -297,12 +340,21 @@ namespace DungeonExplorer
             if (map.CurrentRoom.Name == "Room6" && roomName.Equals("Room7", StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine("The door is sealed by a riddle. Solve it to pass.");
-
-                Console.WriteLine("\"I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?\""); // The answer is echo.
+            
+                var riddles = LoadRiddles();
+                if (riddles.Count == 0)
+                {
+                    Console.WriteLine("No riddles available. The door remains shut.");
+                    return;
+                }
+            
+                Random rand = new Random();
+                var chosenRiddle = riddles[rand.Next(riddles.Count)];
+                Console.WriteLine($"Riddle: \"{chosenRiddle.question}\"");
                 Console.Write("Your answer: ");
-                string answer = Console.ReadLine().Trim().ToLower();
-
-                if (answer == "echo") // If the player got the answer right.
+                string playerAnswer = Console.ReadLine().Trim().ToLower();
+            
+                if (playerAnswer == chosenRiddle.answer)
                 {
                     Console.WriteLine("The door rumbles and opens. You may proceed!");
                     map.MoveToRoom(roomName);
