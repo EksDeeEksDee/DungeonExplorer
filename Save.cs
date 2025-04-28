@@ -5,20 +5,25 @@ namespace DungeonExplorer
 {
     public class Save
     {
+        // The file where all save data will be stored
         private const string SaveFilePath = "savegame.txt";
 
+        // Save the current game state (player and room name) to a file
         public static void SaveGame(Player player, string currentRoomName)
         {
             using (StreamWriter writer = new StreamWriter(SaveFilePath))
             {
-                writer.WriteLine(player.Name);
-                writer.WriteLine(player.Health);
-                writer.WriteLine(player.Experience);
-                writer.WriteLine(player.Level);
-                writer.WriteLine(currentRoomName);
+                // Write basic player info
+                writer.WriteLine(player.Name);        // Player name
+                writer.WriteLine(player.Health);      // Player health
+                writer.WriteLine(player.Experience);  // Player experience points
+                writer.WriteLine(player.Level);       // Player level
+                writer.WriteLine(currentRoomName);    // Name of the current room the player is in
+
+                // Write inventory items (separated by "|")
                 writer.WriteLine(string.Join("|", player.GetInventoryNames()));
 
-                // Save statistics
+                // Write player statistics
                 writer.WriteLine(player.Stats.EnemiesDefeated);
                 writer.WriteLine(player.Stats.TotalDamageTaken);
                 writer.WriteLine(player.Stats.PotionsUsed);
@@ -29,16 +34,18 @@ namespace DungeonExplorer
             Console.WriteLine("Game saved successfully!");
         }
 
+        // Load a saved game state from the file
         public static (Player, string) LoadGame()
         {
             if (!File.Exists(SaveFilePath))
             {
                 Console.WriteLine("No save file found.");
-                return (null, null);
+                return (null, null); // No save found
             }
 
             using (StreamReader reader = new StreamReader(SaveFilePath))
             {
+                // Read and rebuild player basic info
                 string name = reader.ReadLine();
                 int health = int.Parse(reader.ReadLine());
                 int experience = int.Parse(reader.ReadLine());
@@ -46,11 +53,13 @@ namespace DungeonExplorer
                 string currentRoomName = reader.ReadLine();
                 string inventoryLine = reader.ReadLine();
 
+                // Create a new Player object with read values
                 Player player = new Player(name, health, experience)
                 {
                     Level = level
                 };
 
+                // Rebuild inventory if there are saved items
                 if (!string.IsNullOrEmpty(inventoryLine))
                 {
                     string[] itemNames = inventoryLine.Split('|');
@@ -60,17 +69,18 @@ namespace DungeonExplorer
                     }
                 }
 
-                // Load statistics
+                // Read and rebuild player statistics
                 int enemiesDefeated = int.Parse(reader.ReadLine());
-                int totalDamageDealt = int.Parse(reader.ReadLine());
+                int totalDamageTaken = int.Parse(reader.ReadLine());
                 int potionsUsed = int.Parse(reader.ReadLine());
                 int itemsPickedUp = int.Parse(reader.ReadLine());
                 int roomsVisited = int.Parse(reader.ReadLine());
 
-                player.Stats.LoadStats(enemiesDefeated, totalDamageDealt, potionsUsed, itemsPickedUp, roomsVisited);
+                // Apply loaded stats to the player
+                player.Stats.LoadStats(enemiesDefeated, totalDamageTaken, potionsUsed, itemsPickedUp, roomsVisited);
 
                 Console.WriteLine("Game loaded successfully!");
-                return (player, currentRoomName);
+                return (player, currentRoomName); // Return the loaded player and room name
             }
         }
     }
