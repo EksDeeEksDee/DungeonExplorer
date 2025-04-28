@@ -122,6 +122,10 @@ namespace DungeonExplorer
                 inventory.AddItem(new HealingPotion());
             else if (itemName.Equals("Strength Potion", StringComparison.OrdinalIgnoreCase))
                 inventory.AddItem(new StrengthPotion());
+            else if (itemName.Equals("Goblin Slayer Sword", StringComparison.OrdinalIgnoreCase))
+                inventory.AddItem(new Sword("Goblin Slayer Sword", "A sword made to destroy goblins.", 10));
+            else if (itemName.Equals("Stone Cutter Sword", StringComparison.OrdinalIgnoreCase))
+                inventory.AddItem(new Sword("Stone Cutter Sword", "A sword sharp enough to cut through stone.", 20));
         }
 
 
@@ -167,4 +171,3 @@ namespace DungeonExplorer
         }
     }
 }
-
