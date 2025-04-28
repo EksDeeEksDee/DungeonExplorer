@@ -114,7 +114,7 @@ namespace DungeonExplorer
             // More story text and initializing a new player.
             Console.WriteLine($"That's it! {new_name} was your name!");
             Console.WriteLine("You stand up not sure of where you are or what's to come.");
-            player = new Player(new_name, 1000, 0);
+            player = new Player(new_name, 150, 0);
 
         }
 
@@ -444,6 +444,7 @@ namespace DungeonExplorer
                         if (target is Dragon)
                         {
                             Console.WriteLine("Congratulations! You have defeated the Ancient Dragon and completed the dungeon!");
+                            player.Stats.DisplayStats();
                             player.Stats.SaveToFile(); // Save final stats
                             Environment.Exit(0);
                         }
