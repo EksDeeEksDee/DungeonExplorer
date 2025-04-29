@@ -362,6 +362,15 @@ namespace DungeonExplorer
                 }
                 return;
             }
+            
+            if (map.CurrentRoom.Name == "Room1" && roomName.Equals("Room2", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!player.InventoryContains("Rusty Key"))
+                {
+                    Console.WriteLine("The door to Room2 is locked. You need the Rusty Key to proceed.");
+                    return;
+                }
+            }
 
             // Existing movement logic for other rooms
             if (map.MoveToRoom(roomName))
