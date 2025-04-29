@@ -33,8 +33,8 @@ namespace DungeonExplorer
         public HealingPotion() : base("Healing Potion", "Heals 20 health.") { }
         public override void Use(Creature target)
         {
+            Console.WriteLine($"{target.Name} used {Name}");
             target.Heal(20);
-            Console.WriteLine($"{target.Name} used {Name} and healed for 20 health.");
         }
     }
 }
