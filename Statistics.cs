@@ -32,6 +32,12 @@ namespace DungeonExplorer
         {
             RoomsVisited++;
         }
+
+        public void DamageTaken(int amount)
+        {
+            TotalDamageTaken += amount;
+        }
+        
         // Method used to display stats.
         public void DisplayStats()
         {
