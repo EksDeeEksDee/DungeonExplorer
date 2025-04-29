@@ -97,6 +97,8 @@ namespace DungeonExplorer
         public override void TakeDamage(int amount)
         {
             Health -= amount;
+            Stats.DamageTaken(amount);
+            
         }
 
         public List<Item> GetInventoryItems()
