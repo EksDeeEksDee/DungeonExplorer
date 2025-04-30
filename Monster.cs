@@ -22,7 +22,7 @@ namespace DungeonExplorer
         }
 
         // Healing logic - only allows for a specified amount of heals.
-        protected bool TryHeal()
+        protected virtual bool TryHeal()
         {
             if (healsRemaining > 0 && Health < MaxHealth / 2 && random.NextDouble() < healChance)
             {
@@ -54,7 +54,7 @@ namespace DungeonExplorer
 
     public class Goblin : Monster
     {
-        public Goblin() : base("Goblin", 50, 7, 17, 50)
+        public Goblin() : base("Goblin", 50, 5, 12, 50)
         {
             healsRemaining = 1;
             healChance = 0.2; // 20% chance
@@ -73,7 +73,7 @@ namespace DungeonExplorer
 
     public class GoblinWarrior : Monster
     {
-        public GoblinWarrior() : base("Goblin Warrior", 60, 9, 19, 80)
+        public GoblinWarrior() : base("Goblin Warrior", 100, 9, 19, 80)
         {
             healsRemaining = 1;
             healChance = 0.1; // 10% chance
@@ -92,7 +92,7 @@ namespace DungeonExplorer
 
     public class GoblinChief : Monster
     {
-        public GoblinChief() : base("Goblin Chief", 80, 12, 18, 100)
+        public GoblinChief() : base("Goblin Chief", 80, 8, 15, 100)
         {
             healsRemaining = 2;
             healChance = 0.05; // 5% chance
@@ -111,9 +111,9 @@ namespace DungeonExplorer
 
     public class StoneKnight : Monster
     {
-        public StoneKnight() : base("Stone Knight", 120, 15, 22, 150)
+        public StoneKnight() : base("Stone Knight", 120, 10, 18, 150)
         {
-            healsRemaining = 1;
+            healsRemaining = 2;
             healChance = 0.15; // 15% chance
         }
 
@@ -132,10 +132,24 @@ namespace DungeonExplorer
     {
         private bool enraged = false;
 
-        public Dragon() : base("Ancient Dragon", 200, 20, 30, 300)
+        public Dragon() : base("Ancient Dragon", 200, 15, 24, 300)
         {
             healsRemaining = 1;      // Only one big heal
             healChance = 1.0;        // Always heals if conditions met
+        }
+
+        // Dragon has it's own heal logic as it heals more than all the other enemies.
+        protected override bool TryHeal()
+        {
+            if (healsRemaining > 0 && Health < MaxHealth / 2 && random.NextDouble() < healChance)
+            {
+                int healAmount = 60 // Dragon heals more
+                Heal(healAmount);
+                healsRemaining--;
+                Console.WriteLine($"{Name} channels ancient power and heals for {healAmount} HP!");
+                return true;
+            }
+            return false;
         }
 
         public override int Attack(Creature target)
@@ -146,7 +160,7 @@ namespace DungeonExplorer
             {
                 enraged = true;
                 MinDamage += 8; // Being enraged increases the dragon's overall damage.
-                MaxDamage += 12;
+                MaxDamage += 7;
                 Console.WriteLine($"{Name} enters a furious rage!");
             }
             
